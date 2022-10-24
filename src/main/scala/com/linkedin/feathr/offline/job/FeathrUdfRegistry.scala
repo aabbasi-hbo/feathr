@@ -16,6 +16,7 @@ private[offline] object FeathrUdfRegistry {
     sparkSession.udf.register("and", udf((first, second) => MvelContextUDFs.and(first, second)))
     sparkSession.udf.register("or", udf((first, second) => MvelContextUDFs.or(first, second)))
     sparkSession.udf.register("not", udf(input => MvelContextUDFs.not(input)))
+    sparkSession.udf.register("toBoolean", udf(input => MvelContextUDFs.toBoolean(input)))
     // spark wont' allow return type of object. So we have to provide different functions for different return types.
     sparkSession.udf.register("if_else", udf((expression: Boolean, first: String, second: String) => MvelContextUDFs.if_else(expression, first, second)))
     sparkSession.udf.register("if_else", udf((expression: Boolean, first: Double, second: Double) => MvelContextUDFs.if_else(expression, first, second)))
