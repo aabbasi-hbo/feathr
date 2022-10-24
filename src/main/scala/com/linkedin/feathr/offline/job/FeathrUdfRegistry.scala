@@ -22,5 +22,6 @@ private[offline] object FeathrUdfRegistry {
     sparkSession.udf.register("if_else", udf((expression: Boolean, first: Double, second: Double) => MvelContextUDFs.if_else(expression, first, second)))
     sparkSession.udf.register("if_else", udf((expression: Boolean, first: Integer, second: Integer) => MvelContextUDFs.if_else(expression, first, second)))
     sparkSession.udf.register("if_else", udf((expression: Boolean, first: Boolean, second: Boolean) => MvelContextUDFs.if_else(expression, first, second)))
+    sparkSession.udf.register("if_else", udf((expression: Boolean, first: Float, second: Float) => MvelContextUDFs.if_else(expression, first, second)))
   }
 }
