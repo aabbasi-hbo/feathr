@@ -17,8 +17,10 @@ class ObservationSettings(HoconConvertible):
     def __init__(self,
                  observation_path: str,
                  event_timestamp_column: Optional[str] = None,
+                 simulation_time_delay: Optional[str] = None,
                  timestamp_format: str = "epoch") -> None:
         self.event_timestamp_column = event_timestamp_column
+        self.simulation_time_delay = simulation_time_delay
         self.timestamp_format = timestamp_format
         self.observation_path = observation_path
         if self.observation_path.strip().startswith("sql%"):
@@ -35,10 +37,13 @@ class ObservationSettings(HoconConvertible):
                             def: "{{setting.event_timestamp_column}}"
                             format: "{{setting.timestamp_format}}"
                         }
-                        simulateTimeDelay: 1d
+                        {% if setting.simulation_time_delay is not none %}
+                        simulateTimeDelay: "{{setting.simulation_time_delay}}"
+                        {% endif %}
                     }
                 }
                 {% endif %}
                 observationPath: "{{setting.observation_path}}"
             """)
+        print("TEMPLATE: ", tm.render(setting=self))
         return tm.render(setting=self)
