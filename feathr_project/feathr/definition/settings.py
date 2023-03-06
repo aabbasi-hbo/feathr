@@ -34,7 +34,7 @@ class ObservationSettings(HoconConvertible):
                         timestampColumn: {
                             def: "{{setting.event_timestamp_column}}"
                             format: "{{setting.timestamp_format}}"
-                        },
+                        }
                         simulateTimeDelay: 1d
                     }
                 }
