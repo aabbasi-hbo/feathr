@@ -45,5 +45,4 @@ class ObservationSettings(HoconConvertible):
                 {% endif %}
                 observationPath: "{{setting.observation_path}}"
             """)
-        print("TEMPLATE: ", tm.render(setting=self))
         return tm.render(setting=self)
