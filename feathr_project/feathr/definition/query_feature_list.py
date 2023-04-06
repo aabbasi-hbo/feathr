@@ -17,14 +17,15 @@ class FeatureQuery(HoconConvertible):
         if isinstance(key, TypedKey):
             self.key = [key]
         self.feature_list = feature_list
-        self.overrideTimeDelay = overrideTimeDelay
+        if overrideTimeDelay:
+            self.overrideTimeDelay = overrideTimeDelay
 
     def to_feature_config(self) -> str:
         tm = Template("""
             {
                 key: [{{key_columns}}]
                 featureList: [{{feature_names}}]
-                {% if query.overrideTimeDelay is not None %}
+                {% if query.overrideTimeDelay is defined %}
                 overrideTimeDelay: "{{query.overrideTimeDelay}}"
                 {% endif %}
             }
