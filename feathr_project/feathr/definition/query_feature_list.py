@@ -12,17 +12,21 @@ class FeatureQuery(HoconConvertible):
         feature_list: a list of feature names
         key: key of `feature_list`, all features must share the same key
         """
-    def __init__(self, feature_list: List[str], key: Optional[Union[TypedKey, List[TypedKey]]] = None) -> None:
+    def __init__(self, feature_list: List[str], key: Optional[Union[TypedKey, List[TypedKey]]] = None, overrideTimeDelay: Optional[str] = None) -> None:
         self.key = key
         if isinstance(key, TypedKey):
             self.key = [key]
         self.feature_list = feature_list
+        self.overrideTimeDelay = overrideTimeDelay
 
     def to_feature_config(self) -> str:
         tm = Template("""
             {
                 key: [{{key_columns}}]
                 featureList: [{{feature_names}}]
+                {% if self.overrideTimeDelay is not none %}
+                overrideTimeDelay: "{{self.overrideTimeDelay}}"
+                {% endif %}
             }
         """)
         key_columns = ", ".join(k.key_column for k in self.key) if self.key else "NOT_NEEDED"
