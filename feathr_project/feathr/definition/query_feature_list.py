@@ -24,7 +24,7 @@ class FeatureQuery(HoconConvertible):
             {
                 key: [{{key_columns}}]
                 featureList: [{{feature_names}}]
-                {% if query.overrideTimeDelay is defined %}
+                {% if query.overrideTimeDelay is not None %}
                 overrideTimeDelay: "{{query.overrideTimeDelay}}"
                 {% endif %}
             }
