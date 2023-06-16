@@ -892,7 +892,7 @@ class FeathrClient(object):
 
         key_column : Eg. HBO_UUID
 
-        tags : eg. {"type":"anchored"}
+        tags : eg. {"type":"anchored/derived"}
            '''
 
         feature_map = self.get_features_from_registry(project_name)
