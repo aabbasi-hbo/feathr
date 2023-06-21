@@ -136,6 +136,23 @@ class _FeatureRegistry(FeathrRegistry):
             "id": r["guid"],
             "qualifiedName": r["attributes"]["qualifiedName"],
         } for r in resp]
+    
+    def list_dependent_entities(self, qualified_name: str):
+        """
+        Returns list of dependent entities for provided entity
+        """
+        resp = self._get(f"/dependent/{qualified_name}")
+        return [{
+            "name": r["attributes"]["name"],
+            "id": r["guid"],
+            "qualifiedName": r["attributes"]["qualifiedName"],
+        } for r in resp]
+    
+    def delete_entity(self, qualified_name: str):
+        """
+        Deletes entity if it has no dependent entities
+        """
+        self._delete(f"/entity/{qualified_name}")
 
     def get_features_from_registry(self, project_name: str) -> Tuple[List[FeatureAnchor], List[DerivedFeature]]:
         """
@@ -187,6 +204,10 @@ class _FeatureRegistry(FeathrRegistry):
     def _get(self, path: str) -> dict:
         logging.debug("PATH: ", path)
         return check(requests.get(f"{self.endpoint}{path}", headers=self._get_auth_header())).json()
+    
+    def _delete(self, path: str) -> dict:
+        logging.debug("PATH: ", path)
+        return check(requests.delete(f"{self.endpoint}{path}", headers=self._get_auth_header())).json()
 
     def _post(self, path: str, body: dict) -> dict:
         logging.debug("PATH: ", path)
@@ -251,7 +272,7 @@ class _FeatureRegistry(FeathrRegistry):
                     definitions.features.add(feature)
                     definitions.transformations.add(vars(feature)["transform"])
                 else:
-                    raise RuntimeError("Object cannot be parsed.")
+                    raise RuntimeError(f"Object cannot be parsed. Feature is {feature.name}")
 
         return definitions
 
@@ -401,13 +422,8 @@ def source_to_def(v: Source) -> dict:
         ret = {
             "name": v.name,
             "type": "SNOWFLAKE",
-            "database": v.database,
-            "schema": v.schema
+            "path": v.path,
         }
-        if hasattr(v, "dbtable") and v.dbtable:
-            ret["dbtable"] = v.dbtable
-        if hasattr(v, "query") and v.query:
-            ret["query"] = v.query
     elif isinstance(v, JdbcSource):
         ret = {
             "name": v.name,
@@ -458,11 +474,13 @@ def dict_to_source(v: dict) -> Source:
                                 "timestampFormat"),
                             registry_tags=v["attributes"].get("tags", {}))
     elif type == "SNOWFLAKE":
+        snowflake_path = v["attributes"]["path"]
+        snowflake_parameters = SnowflakeSource.parse_snowflake_path(snowflake_path)
         source = SnowflakeSource(name=v["attributes"]["name"],
-                                dbtable=v["attributes"]["dbtable"],
-                                query=v["attributes"]["query"],
-                                database=v["attributes"]["database"],
-                                schema=v["attributes"]["schema"],
+                                dbtable=snowflake_parameters.get("dbtable", None),
+                                query=snowflake_parameters.get("query", None),
+                                database=snowflake_parameters["sfDatabase"],
+                                schema=snowflake_parameters["sfSchema"],
                                 preprocessing=_correct_function_indentation(
                                     v["attributes"].get("preprocessing")),
                                 event_timestamp_column=v["attributes"].get(

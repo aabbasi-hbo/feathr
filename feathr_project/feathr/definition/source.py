@@ -6,6 +6,7 @@ from feathr.definition.feathrconfig import HoconConvertible
 
 from jinja2 import Template
 from loguru import logger
+from urllib.parse import urlparse, parse_qs
 import json
 
 
@@ -154,6 +155,25 @@ class SnowflakeSource(Source):
             self.query = query
         self.database = database
         self.schema = schema
+        self.path = self._get_snowflake_path(dbtable, query)
+
+    def _get_snowflake_path(self, dbtable: Optional[str] = None, query: Optional[str] = None) -> str:
+        """
+        Returns snowflake path for registry.
+        """
+        if dbtable:
+            return f"snowflake://snowflake_account/?sfDatabase={self.database}&sfSchema={self.schema}&dbtable={dbtable}"
+        else:
+            return f"snowflake://snowflake_account/?sfDatabase={self.database}&sfSchema={self.schema}&query={query}"
+    
+    def parse_snowflake_path(url: str) -> Dict[str, str]:
+        """
+        Parses snowflake path into dictionary of components for registry.
+        """
+        parse_result = urlparse(url)
+        parsed_queries = parse_qs(parse_result.query)
+        updated_dict = {key: parsed_queries[key][0] for key in parsed_queries}
+        return updated_dict
     
     def to_feature_config(self) -> str:
         tm = Template("""  
