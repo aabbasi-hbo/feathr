@@ -67,7 +67,7 @@ setup(
         "deltalake<=0.5.8",
         "graphlib_backport<=1.0.3",
         "protobuf<=3.19.4,>=3.0.0",
-        "confluent-kafka<=1.9.2",
+        "confluent-kafka<=2.2.0",
         "databricks-cli<=0.17.3",
         "avro<=1.11.1",
         "azure-storage-file-datalake<=12.5.0",
